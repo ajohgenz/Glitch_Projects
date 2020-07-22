@@ -1,0 +1,80 @@
+/* global p5 */
+
+// DO NOT DELETE THE FOLLOWING LINE
+const p = new p5(() => {});
+
+/*
+Today's topics:
+
++ keyPressed() and mousePressed()
++ More HSB color mode
++ Mouse input data
++ random() function
+
+*/
+
+
+
+let brushHue; 
+let priorX; 
+let priorY;
+//let osc;
+//let playing;
+//let freq;
+//let amp;
+
+p.setup = function () {
+  // Canvas & color settings
+  p.createCanvas(800, 800);
+  brushHue = 0;
+  p.strokeWeight(6);
+  p.background(22);
+}
+
+p.draw = function () {
+  
+  chooseColors();
+  
+  p.strokeWeight(p.random(10))
+  
+  if (p.mouseIsPressed) {
+  p.line(priorX, priorY, p.mouseX, p.mouseY);
+  }
+  
+  priorX = p.mouseX;
+  priorY = p.mouseY;
+  
+  priorX = p.mouseX;
+  priorY = p.mouseY;
+  
+brushHue += 1;
+  
+  if (brushHue >= 360) {
+    brushHue = 0;
+  }
+  
+ for (let i = 0; i < 100; i++) {
+  let r = p.random(-800, 800);
+  p.line(50, i, 50 + r, i);
+}
+  
+p.keyPressed = function () { 
+  if (p.keyCode === p.BACKSPACE || p.keyCode === p.DELETE)
+  p.background(22);}
+  
+}
+
+
+
+
+p.mousePressed = function () {}
+
+  
+  //Math.random() * MAXVALUE >= p.random(MAX_VALUE)
+  //p.ellipse(p.random(400), p.random(400), 10);
+  
+  
+function chooseColors() {
+  p.stroke(brushHue, 50, 80);
+  p.fill(brushHue, 50, 80);
+}
