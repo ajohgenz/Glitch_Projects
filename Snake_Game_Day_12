@@ -1,0 +1,213 @@
+/* global p5 */
+
+let p = new p5(() => {});
+
+let backgroundColor, playerSnake, currentApple, timer, time, appleTime, appleDuration, appleCounter,  score, x;
+
+const spacebar = 32; //32 is the keyCode for the spacebar!
+
+p.setup = function () {
+  // Canvas & color settings
+  p.createCanvas(400, 400);
+  p.colorMode(p.HSB, 360, 100, 100);
+  backgroundColor = 95;
+  p.frameRate(12);
+  playerSnake = new Snake();
+  currentApple = new Apple();
+  score = 0;
+  timer = 0;
+  time = 60;
+  appleDuration = 100;
+  appleCounter = 0;
+  appleTime = p.random(appleDuration, time);
+}
+
+p.draw = function() {
+  p.background(backgroundColor);
+  // The snake performs the following four methods:
+  playerSnake.moveSelf();
+  playerSnake.showSelf();
+  playerSnake.checkCollisions();
+  playerSnake.checkApples();
+  // The apple needs fewer methods to show up on screen.
+  currentApple.showSelf();
+  // We put the score in its own function for readability.
+  displayScore();
+  displayTimer();
+  handleTime();
+  
+  let timeRemaining = "Time remaining " + time;
+  
+}
+
+function displayScore() {
+  p.fill(0);
+  p.text(`Score: ${score}`, 20, 20);
+}
+
+function displayTimer() {
+p.fill(0);
+p.text(` Apple Timer: ${time}`, p.width/2, 20);
+}
+
+function handleTime() {
+  time --;
+if (time <= 0) {
+}
+}
+
+class Snake {
+  constructor() {
+    this.size = 10;
+    this.x = p.width/2;
+    this.y = p.height - 10;
+    this.direction = 'N';
+    this.speed = 12;
+    this.tail = [new TailSegment(this.x, this.y)];
+    
+  }
+
+  moveSelf() {
+    if (this.direction === "N") {
+      this.y -= this.speed;
+    } else if (this.direction === "S") {
+      this.y += this.speed;
+    } else if (this.direction === "E") {
+      this.x += this.speed;
+    } else if (this.direction === "W") {
+      this.x -= this.speed;
+    } else {
+      console.log("Error: invalid direction");
+    }
+    this.tail.unshift(new TailSegment(this.x, this.y));
+    this.tail.pop();
+  }
+
+  showSelf() {
+    p.stroke(240, 100, 100);
+    p.noFill();
+    p.rect(this.x, this.y, this.size, this.size);
+    p.noStroke();
+    for (let i = 0; i < this.tail.length; i++) {
+      this.tail[i].showSelf();
+    }
+  }
+
+  checkApples() {
+    // If the head of the snake collides with the apple...
+    if (p.collideRectRect(this.x, this.y, this.size, this.size,
+        currentApple.x, currentApple.y, currentApple.size, currentApple.size)) {
+      // Make a new apple, increment the score, and extend the tail.
+      if (x<= 25) {
+        score += 1;
+      } else if ((x<= 60)||(x>=330)){
+      score += 2; 
+      } else if ((x<= 150)&&(x>=61)){
+      score += 3; 
+      } else if ((x<= 240)&&(x>=151)){
+      score += 4; 
+      } else if ((x<= 300)&&(x>=241)){
+      score += 5; 
+      } else if ((x<=330)&&(x>=301)){
+      score += 2; 
+      }
+      currentApple = new Apple();
+      this.extendTail();
+    }
+  }
+
+  checkCollisions() {
+    if (this.x < 0 || this.x >= p.width) {
+       gameOver();
+    } else if (this.y < 0 || this.y >= p.height) {
+      gameOver();
+    } else if (this.tail.length > 2) {
+      for (let i=1; i < this.tail.length; i++) {
+        if (this.x == this.tail[i].x && this.y == this.tail[i].y) {
+          gameOver();
+        }
+        // This helper text will show the index of each tail segment.
+        // text(i, this.tail[i].x, this.tail[i].y)
+      }
+    }
+  }
+
+  extendTail() {
+    // Add a new segment by duplicating whatever you find at the end of the tail.
+    let lastTailSegment = this.tail[this.tail.length - 1];
+    // Push a new tail segment to the end, using the same position as the
+    // current last segment of the tail.
+    this.tail.push(new TailSegment(lastTailSegment.x, lastTailSegment.y));
+  }
+}
+
+class TailSegment {
+  constructor(x, y) {
+    this.x = x;
+    this.y = y;
+    this.size = 10;
+  }
+
+  showSelf() {
+    p.fill(0);
+    p.rect(this.x, this.y, this.size, this.size);
+  }
+}
+
+class Apple {
+  constructor() {
+    x = p.random(250);
+    this.x = p.round(p.random(p.width - 10));
+    this.y = p.round(p.random(p.height - 10));
+    this.size = 10;
+  }
+
+
+  showSelf() {
+    p.fill(x, 100, 80);
+    p.rect(this.x, this.y, this.size, this.size);
+  
+  /*if (
+ time <= appleTime &&
+   time >= appleTime - appleDuration &&
+    appleCounter === 0 ) {
+    
+    }*/
+    
+   //function handleTime() 
+    if (time <= 0) {
+        p.nofill = true;
+      }
+  }
+}
+
+p.keyPressed = function () {
+  console.log("key pressed: ", p.keyCode);
+  if (p.keyCode === p.UP_ARROW && playerSnake.direction != 'S') {
+    playerSnake.direction = "N";
+  } else if (p.keyCode === p.DOWN_ARROW && playerSnake.direction != 'N') {
+    playerSnake.direction = "S";
+  } else if (p.keyCode === p.RIGHT_ARROW && playerSnake.direction != 'W') {
+    playerSnake.direction = "E";
+  } else if (p.keyCode === p.LEFT_ARROW && playerSnake.direction != 'E') {
+    playerSnake.direction = "W";
+  } else if (p.keyCode === spacebar) {
+    restartGame();
+  } else {
+    console.log("wrong key");
+  }
+}
+
+
+function restartGame() {
+  score = 0;
+  playerSnake = new Snake();
+  currentApple = new Apple();
+  p.loop();
+}
+
+function gameOver() {
+  p.stroke(0);
+  p.text("GAME OVER", 50, 50);
+  p.noLoop();
+}
