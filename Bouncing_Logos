@@ -1,0 +1,105 @@
+/* global p5 */
+
+// DO NOT EDIT THE FOLLOWING LINE
+const p = new p5(() => {});
+
+/*
+Today's topics:
+
++ Variables
++ The draw() loop
++ Conditional statements
++ Hard-coded values
+
+*/ 
+
+let BulletPoint;
+let Target;
+let Circumference;
+let x = 300;
+let y = 300;
+let xVelocity = 10;
+let yVelocity = 10;
+let RedBall1;
+let x2 = 150;
+let y2 = 150;
+let xVelocity2 = 25;
+let yVelocity2 = 25;
+let RedBall2;
+let x3 = 175;
+let y3 =175;
+let xVelocity3 = 50;
+let yVelocity3 =50;
+
+
+
+p.setup = function () {
+  p.createCanvas(800, 600);
+
+}
+
+
+p.draw = function () {
+  p.background(22) 
+  
+  x = x + xVelocity
+  if (x >= 800){ xVelocity = xVelocity * -1
+  }
+  if (x <= 0){ xVelocity = xVelocity * -1
+    
+  }
+ y = y + xVelocity
+  if (y >= 600){ yVelocity = yVelocity * -1
+ }
+  if (y <= 0){ yVelocity = yVelocity * -1
+    
+  }
+  
+  x2 = x2 + xVelocity2
+  if (x2 >= 800){ xVelocity2 = xVelocity2 * -1
+  }
+  if (x2 <= 0){ xVelocity2 = xVelocity2 * -1
+    
+  }
+ y2 = y2 + xVelocity2
+  if (y2 >= 600){ yVelocity2 = yVelocity2 * -1
+ }
+  if (y2 <= 0){ yVelocity2 = yVelocity2 * -1
+    
+  }
+  
+   x3 = x3 + xVelocity3
+  if (x3 >= 800){ xVelocity3 = xVelocity3 * -1
+  }
+  if (x3 <= 0){ xVelocity3 = xVelocity3 * -1
+    
+  }
+ y3 = y3 + xVelocity
+  if (y >= 600){ yVelocity = yVelocity * -1
+ }
+  if (y <= 0){ yVelocity = yVelocity * -1
+    
+  }
+  
+  
+  
+  {Circumference = p.ellipse(x, y, 120, 120)
+  p.fill(225, 225, 225);}
+  
+ {Target = p.ellipse(x, y, 80,80);
+  p.fill(225, 0, 0);
+}
+  {BulletPoint = p.ellipse(x, y, 40, 40);
+  p.fill(225, 0, 0)
+  }
+  
+  {RedBall1 = p.ellipse(x2, y2, 130, 130)
+  }
+  
+  {RedBall2 = p.ellipse(x3, y3, 150, 150)}
+   
+  p.noStroke()
+
+
+  
+}
