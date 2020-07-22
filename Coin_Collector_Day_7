@@ -1,0 +1,181 @@
+/* global p5 */
+
+let p = new p5(() => {});
+
+let backgroundColor,
+  coin1,
+  coin2,
+  coin3,
+  coin4,
+  coinX,
+  marioCoin,
+  starCoin,
+  starCoinDuration,
+  coinY,
+  score,
+  time,
+  gameIsOver,
+  startTextSize,
+  hit,
+  starTime,
+  starCounter,
+  marioFace,
+  marioFaceDim,
+  marioBG;
+
+/*
+Problems to fix:
+1) Enter to restart game
+2) when time = 0, you can't get anymore scores
+3) starcoin sometimes doesn't work
+4) What is D value
+5) As mario gets bigger, do I need to change something?
+
+*/
+
+p.setup = function() {
+  // Canvas & color settings
+  marioCoin = p.loadImage(
+    "https://cdn.glitch.com/1a779161-47ca-48de-a2d4-5073344760f2%2Fmario_coin.png?v=1594690150961"
+  );
+  starCoin = p.loadImage(
+    "https://cdn.glitch.com/1a779161-47ca-48de-a2d4-5073344760f2%2Fbetter%20mari%20star.png?v=1594721014423"
+  );
+  marioBG = p.loadImage(
+    "https://cdn.glitch.com/1a779161-47ca-48de-a2d4-5073344760f2%2Fcropped%20mario%20background%20wallpaper%20(1).jpg?v=1594750058012"
+  );
+  marioFace = p.loadImage(
+    "https://cdn.glitch.com/1a779161-47ca-48de-a2d4-5073344760f2%2Fcircle-cropped.png?v=1594751667573"
+  );
+
+  p.createCanvas(400, 400);
+  coinX = p.random(p.width - 40);
+  coinY = p.random(p.height - 40);
+  time = 600;
+  gameIsOver = false;
+  score = 0;
+  
+  starCoinDuration = 100;
+  starTime = p.random(starCoinDuration, time);
+  starCounter = 0;
+  p.background(marioBG);
+  marioFaceDim = 30;
+  p.textAlign(p.CENTER, p.CENTER);
+  p.stroke("yellow");
+  p.fill("yellow");
+  p.textSize(15);
+
+  coin1 = {
+    x: p.random(p.width - 40),
+    y: p.random(p.height - 40),
+    d: 20
+  };
+
+  coin2 = {
+    x: p.random(p.width - 40),
+    y: p.random(p.height - 40),
+    d: 40
+  };
+
+  coin3 = {
+    x: p.random(p.width - 60),
+    y: p.random(p.height - 60),
+    d: 20
+  };
+
+  coin4 = {
+    x: p.random(p.width - 60),
+    y: p.random(p.height - 60),
+    d: 60
+  };
+};
+
+p.draw = function() {
+  p.background(marioBG);
+  
+  p.image(marioCoin, coin1["x"], coin1["y"], 20, 20); //smallest coin
+  p.image(marioCoin, coin2["x"], coin2["y"], 40, 40); //medium coin
+  p.image(marioCoin, coin4["x"], coin4["y"], 60, 60); //large coin
+  p.image(marioFace, p.mouseX - marioFaceDim/2, p.mouseY - marioFaceDim/2, marioFaceDim, marioFaceDim); //attched to mouse position
+
+  let timeRemaining = "Time remaining " + time;
+
+ 
+  p.text(`Time remaining: ${time}`, p.width/2, 20);
+  p.text(`Score: ${score}`, p.width/2, 40);
+
+  let isCollision = handleCollision(coin1["x"], coin1["y"], coin1["d"]);
+  let isCollision2 = handleCollision(coin2["x"], coin2["y"], coin2["d"]);
+  let isCollision4 = handleCollision(coin4["x"], coin4["y"], coin4["d"]);
+
+  if (isCollision) {
+    score += 3;
+    marioFaceDim += 3;
+    coin1["x"] = p.random(p.width - 40);
+    coin1["y"] = p.random(p.height - 40);
+  }
+
+  if (isCollision2) {
+    score += 2;
+    marioFaceDim += 2;
+    coin2["x"] = p.random(p.width - 40);
+    coin2["y"] = p.random(p.height - 40);
+  }
+
+  if (isCollision4) {
+    score++;
+    marioFaceDim += 1;
+    coin4["x"] = p.random(p.width - 60);
+    coin4["y"] = p.random(p.height - 60);
+  }
+
+  if (
+    time <= starTime &&
+    time >= starTime - starCoinDuration &&
+    starCounter === 0
+  ) {
+    //get this to not repeat!!!! and change star image and fix the random corodinate so image doesn't go outside of cnavas/fix text
+    p.image(starCoin, coin3["x"], coin3["y"], 50, 50);
+    if (
+      p.mouseX >= coin3["x"] &&
+      p.mouseX <= coin3["x"] + 60 &&
+      p.mouseY >= coin3["y"] &&
+      p.mouseY <= coin3["y"] + 60
+    ) {
+      p.textSize(15); //textsize changes after this happens
+      p.text(`Time +50!`, coin3["x"], coin3["y"] + 60);
+      time += 50; //make this longer
+      coin3["x"] = p.random(p.width);
+      coin3["y"] = p.random(p.height);
+      starCounter += 1;
+    }
+  }
+  handleTime();
+  time--;
+};
+
+function handleCollision(cX, cY, cD) {
+  let hit = p.collideCircleCircle(cX, cY, cD, p.mouseX, p.mouseY, 40);
+  return hit;
+}
+
+function handleTime() {
+  if (time <= 0) {
+    gameIsOver = true;
+
+    p.background("red");
+    p.textSize(30);
+    p.fill("yellow");
+    p.text("Game Over!", 0, p.width / 2 - 20, p.height);
+    p.text(`Final Score: ${score}`, 0, p.width / 2 + 20, p.height);
+   // p.text("Press enter to play again", 0, p.width / 2 + 40, p.height);
+   // p.textSize(15); 
+
+    // if (p.keyCode === p.ENTER) {
+    //   p.background(marioBG);
+    //   time = 500;
+    //   score = 0;
+    //   marioFaceDim = 30;
+    // }
+  }
+}
