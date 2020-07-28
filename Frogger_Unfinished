@@ -1,0 +1,102 @@
+/* global p5 */
+
+// DO NOT DELETE THIS LINE
+const p = new p5(() => {});
+
+let backgroundColor, 
+    frogX, 
+    frogY, 
+    score, 
+    lives, 
+    gameIsOver, 
+    car1X, 
+    car1Y, 
+    froggerCar, 
+    x = 300,
+    xVelocity = 10,
+    car1V;
+
+p.setup = function () {
+  // Canvas & color settings
+ 
+  //froggerCar = p.loadImage (
+  //"https://cdn.glitch.com/36178d75-3a50-4266-bcff-03cb5bc1d2cf%2FFrogger_Car.png?v=1594772964674"
+  //);
+  p.createCanvas(500, 500);
+  p.colorMode(p.HSB, 360, 100, 100);
+  backgroundColor = 95;
+  frogX = p.random(p.width);
+  frogY = p.random(p.height);
+  score = 0;
+  lives = 3;
+  gameIsOver = false;
+  car1X = 0;
+  car1Y = 100;
+  car1V = 5;
+}
+
+p.draw = function () {
+  p.background(backgroundColor);
+  
+  //p.image(froggerCar, car1["x"], car1["y"], 40, 30)
+  
+  x = x + xVelocity
+  if (x >= 800){ xVelocity = xVelocity * -1
+  }
+  if (x <= 0){ xVelocity = xVelocity * -1
+    
+  }
+  
+  // Code for gold goal line
+  p.fill(60, 80, 80);
+  p.rect(0, 0, p.width, 50);
+  // Code to display Frog
+  p.fill(120, 80, 80);
+  p.ellipse(frogX, frogY, 20);
+  moveCars();
+  drawCars();
+  checkCollisions();
+  checkWin();
+  displayScores();
+  //let isCollision = handleCollision()
+}
+
+function keyPressed() {
+  if (p.keyCode === p.UP_ARROW) {
+    frogY -= 10;
+  }
+}
+function moveCars() {
+  // Move the car
+
+  // Reset if it moves off screen
+
+}
+
+function drawCars() {
+  // Code for car 1
+  p.fill(0, 80, 80);
+  p.rect(car1X, car1Y, 40, 30);
+  // Code for additional cars
+}
+
+function checkCollisions() {
+  // If the frog collides with the car, reset the frog and subtract a life.
+
+}
+
+function checkWin() {
+  // If the frog makes it into the yellow gold zone, increment the score
+  // and move the frog back down to the bottom.
+}
+
+function displayScores() {
+  p.textSize(12);
+  p.fill(0);
+  // Display Lives
+  p.text(`Lives: ${lives}`, 10, 20);
+  // Display Score
+
+  // Display game over message if the game is over
+
+}
