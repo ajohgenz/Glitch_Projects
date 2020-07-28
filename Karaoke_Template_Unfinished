@@ -1,0 +1,23 @@
+/* global p5 */
+
+// DO NOT DELETE THE FOLLOWING LINE
+const p = new p5(() => {});
+let mySound;
+let y = 0;
+let speed=1;
+let gravity=0.3;
+let x1 = 10;
+
+//p.preload = function() {
+ // p.soundFormats(p.mp3, p.ogg)
+ // mySound = loadSound('assests/doorbell');
+//}
+
+p.setup = function() {
+  p.createCanvas(800, 600);
+
+}
+
+p.canvasPressed = function() {
+  
+}
