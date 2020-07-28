@@ -1,0 +1,277 @@
+/* global p5, ml5 */
+
+let p = new p5(() => {});
+
+//https://teachablemachine.withgoogle.com/models/4D9sEct5Z/
+//https://storage.googleapis.com/tm-model/4D9sEct5Z/model.json
+
+let backgroundColor, playerSnake, currentApple, score, appleImage;
+
+// The video
+let video;
+// For displaying the label
+let label = "waiting...";
+// The classifier
+let classifier;
+let modelURL = 'https://storage.googleapis.com/tm-models/onzpfu6q/model.json';
+
+//let modelURL = 'https://storage.googleapis.com/tm-model/tx15NhOsL/model.json';
+
+let flipVideo;
+
+
+//TODO: Add variable to start a new game.
+const spacebar = "32"; 
+
+p.preload = function() {
+   classifier = ml5.imageClassifier(modelURL);
+   console.log(classifier);
+  
+}
+
+p.setup = function() {
+  // Canvas & color settings
+  p.createCanvas(400, 400);
+  p.colorMode(p.HSB, 360, 100, 100);
+  p.textAlign(p.CENTER, p.CENTER);
+  backgroundColor = 0;
+  p.frameRate(12);
+  appleImage = p.loadImage("https://d33wubrfki0l68.cloudfront.net/143c81f57038feb57bd171377a4f5ec6f696da52/71154/images/graphics/red-apple.png");
+  playerSnake = new Snake();
+  currentApple = new Apple();
+  score = 0;
+  console.log(ml5);
+  
+  
+  // Mirror the video since we trained it that way!
+ 
+  video = p.createCapture(p.VIDEO);  
+  //video.size(p.width, p.height);
+  //flipVideo = ml5.flipImage(video);
+  classifyVideo();
+  
+  
+}
+
+p.draw = function () {
+  p.background(backgroundColor);
+ 
+  // draw Video 
+  
+  //p.image(flipVideo, 0, 0);
+  p.textSize(20);
+  p.fill(100);
+  p.text(label, 300, 300);
+
+  
+
+  controlSnake();
+  
+  currentApple.showSelf();
+  // The snake performs the following five methods:
+  playerSnake.moveSelf();
+  playerSnake.showSelf();
+  playerSnake.checkCollisions();
+  playerSnake.checkApples();
+  playerSnake.checkSelfCollisions();
+  // We put the score in its own function for readability.
+  displayScore();
+  //p.image(video, 0, 0);
+}
+
+
+
+//eventlistener
+p.keyPressed = function () {
+  console.log("key pressed: ", p.keyCode)
+  if (p.keyCode === p.UP_ARROW && playerSnake.direction != 'S') {
+    playerSnake.direction = "N";
+  } else if (p.keyCode === p.DOWN_ARROW && playerSnake.direction != 'N') {
+    playerSnake.direction = "S";
+  } else if (p.keyCode === p.RIGHT_ARROW && playerSnake.direction != 'W') {
+    playerSnake.direction = "E";
+  } else if (p.keyCode === p.LEFT_ARROW && playerSnake.direction != 'E') {
+    playerSnake.direction = "W";
+  } else if(p.keyCode == spacebar){
+    restartGame();
+  } 
+  else {
+    console.log("wrong key");
+  }
+}
+
+function controlSnake() {
+   if (label == "up" && playerSnake.direction != 'S') {
+    playerSnake.direction = "N";
+  } else if (label == "down" && playerSnake.direction != 'N') {
+    playerSnake.direction = "S";
+  } else if (label == "left" && playerSnake.direction != 'W') {
+    playerSnake.direction = "E";
+  } else if (label = "right" && playerSnake.direction != 'E') {
+    playerSnake.direction = "W";
+  } 
+  else {
+    console.log("neutral");
+  }
+}
+
+
+
+function displayScore() {
+  p.stroke(100);
+  p.fill(100);
+ p.textSize(15);
+  p.text(`Score: ${score}`, 50, 30);
+}
+
+function gameOver() {
+  p.stroke(100);
+  p.fill(100);
+  p.textSize(18);
+  p.text("GAME OVER.", (p.width/2), p.height/2);
+  p.text("PRESS SPACEBAR TO RESTART THE GAME.", (p.width/2), (p.height/2) + 20)
+  p.noLoop();
+  p.fill(0);
+}
+
+function restartGame() {
+   playerSnake = new Snake();
+   currentApple = new Apple();
+   score = 0;
+   label = "waiting...";
+  p.loop();
+}
+
+function classifyVideo() {
+  //flipVideo = ml5.flipImage(video);
+  classifier.classify(video, gotResults);
+}
+
+
+//function gotResults(){};
+//gotResults is the function classify calls + returns info to after it has classified the video 
+
+function gotResults(error, results){
+  if(error){
+    console.error(error);
+    return
+  } else{
+  label = results[0].label; 
+  console.log(results);
+  classifyVideo(); 
+  }
+}
+
+//      ***  Class Snake starts here  ***           //
+class Snake {
+  constructor() {
+    this.size = 10;
+    this.x = p.width/2;
+    this.y = p.height - 10;
+    this.direction = 'N';
+    this.speed = 12;
+    this.tail = [new TailSegment(this.x, this.y)]
+  }
+// This method moves the snake around
+  moveSelf() {
+    if (this.direction === "N") {
+      this.y -= this.speed;
+    } else if (this.direction === "S") {
+      this.y += this.speed;
+    } else if (this.direction === "E") {
+      this.x += this.speed;
+    } else if (this.direction === "W") {
+      this.x -= this.speed;
+    } else {
+      console.log("Error: invalid direction");
+    }
+    this.tail.unshift(new TailSegment(this.x, this.y));
+    this.tail.pop();
+  }
+  showSelf() {
+    p.stroke(p.color(200, 100, 100));
+    p.fill(100);
+    p.rect(this.x, this.y, this.size, this.size);
+    for (let eachTail of this.tail){
+      eachTail.showSelf();
+    }
+    p.noStroke();
+  }
+
+  checkApples() {
+    //if the head of the snake hits the apple...
+    if(p.collideRectRect(this.x, this.y, this.size, this.size, 
+                         currentApple.x, currentApple.y, currentApple.size, currentApple.size)){
+      //make a new apple
+      //increase the score
+      score++;
+      currentApple = new Apple();
+      this.extendTail();
+    }
+  }
+  
+  //checks collisions with the wall, ends game when it does
+  checkCollisions() {
+    if(this.x < 0 || this.x >= p.width ){
+      gameOver();
+    }
+     else if(this.y < 0 || this.y >= p.height){
+      gameOver();
+    }
+  }
+  
+  //checks to see if snake's head collides w the rest of its body
+  checkSelfCollisions(){
+    for(let i=2; i < this.tail.length; i++){
+      if(p.collideRectRect(this.x, this.y, this.size, this.size, 
+                         this.tail[i].x, this.tail[i].y, this.tail[i].size, this.tail[i].size)){
+        gameOver();
+      }
+    }
+  }
+
+  extendTail() {
+    // Add a new segment by duplicating whatever you find at the end of the tail.
+    let lastTailSegment = this.tail[this.tail.length -1];
+     // Push a new tail segment to the end, using the same position as the
+    // current last segment of the tail.
+    this.tail.push(new TailSegment(lastTailSegment.x, lastTailSegment.y));
+  }
+}
+//                     *** Class Snake ends here ***                       //
+
+
+
+//          *** Class TailSegment - utilized by the Snake class ***            //  
+class TailSegment {
+  constructor(x, y) {
+    this.x = x;
+    this.y = y;
+    this.size = 10;
+  }
+
+  showSelf() {
+    p.fill(0);
+    p.rect(this.x, this.y, this.size, this.size);
+  }
+}
+//        ***  Class TailSegment ends here  ***                //
+
+
+
+
+//        ***  Class Apple ***       //
+class Apple {
+  constructor() {
+    this.size = 20;
+    this.x = p.round(p.random(p.width - this.size));
+    this.y = p.round(p.random(p.height - this.size));
+  }
+
+  showSelf() {
+    p.fill(0, 80, 80);
+    p.image(appleImage, this.x, this.y, this.size, this.size);
+    //p.rect(this.x, this.y, this.size, this.size);
+  }
+}
+//     ***    Class Apple ends here       ***//
