@@ -1,0 +1,161 @@
+/* global createCanvas, frameRate, background, keyCode, UP_ARROW, DOWN_ARROW, stroke
+   noFill, rect, fill, key, keyIsDown, circle, collideRectCircle, random, tan, round,
+   PI, textSize, text, delayTime, noLoop, redraw, loop
+*/
+
+//modified for Google CSSI
+
+let width, height, player1, player2, pongBall, paddleWidth, paddleHeight, circleRadius, player1Score, player2Score
+function setup(){
+  width = 800;
+  height = 600;
+  paddleWidth = 20;
+  paddleHeight = 80;
+  circleRadius = 10;
+  player1Score = 0;
+  player2Score = 0;
+  p.createCanvas(400, 400);
+  frameRate(30);
+  
+  //creates two Paddle objects, player1 and player 2
+  player1 = new Paddle(20, 20, 255, 204, 0);
+  player2 = new Paddle(780, 500, 20, 0, 255);
+  
+  //creates a Ball object, names pongBall
+  pongBall = new Ball(width/2, height/2, 255, 0, 0);
+}
+
+function draw() {
+  background('white');
+  movePlayer1();
+  player1.showSelf();
+  movePlayer2();
+  player2.showSelf();
+  pongBall.moveSelf();
+  pongBall.showSelf();
+  displayScores();
+  
+  checkCollisions();
+  checkWin();
+}
+
+class Ball {
+  constructor(x, y, r, g, b) {
+    this.x = x;
+    this.y = y;
+    this.r = r;
+    this.g = g;
+    this.b = b;
+    this.angle = random(-PI, PI);
+    this.deltaX = 5;
+  }
+  
+  showSelf() {
+    stroke(this.r, this.g, this.b);
+    fill(this.r, this.g, this.b);
+    circle(this.x, this.y, circleRadius);
+  }
+  
+  moveSelf() {
+    // TODO 2: if the ball hits the floor or ceiling, then the ball should move in the opposite direction hits a floor or ceiling
+     if (this.x >= width) {
+    this.deltaX = -this.deltaX;
+    }
+    
+    if (this.y >= height) {
+    this.deltaX = -this.deltaX;
+    }
+    
+    //the code below this below this should stay
+    var slope = tan(this.angle);
+    var deltaY = round(slope * this.deltaX);
+    this.x += this.deltaX;
+    this.y += deltaY;
+  }
+}
+
+class Paddle {
+  //TODO 1: Complete the constructor and showSelf methods
+  constructor(x, y, r, g, b) {
+    this.pX = x;
+    this.pY = y;
+    this.pR = r;
+    this.pG = g;
+    this.pB = b;
+    
+    p.rect(this.pX, this.pY, paddleWidth, paddleHeight);
+  }
+  
+  showSelf() {
+    stroke(this.pR, this.pG, this.pB);
+    fill(this.r, this.g, this.b);
+  }
+}
+
+//TODO 3: Complete movePlayer1() and movePlayer2()
+function movePlayer1() {
+  //if certain keys are pressed, then player1.y should either increment or decrement
+  function keyPressed() {
+  if (p.keyCode === p.UP_ARROW) {
+    this.pY -= 15;
+  }
+  if (p.keyCode === p.DOWN_ARROW) {
+    this.pY += 15;
+  }
+  if (p.keyCode === p.LEFT_ARROW){
+    this.pX -= 15;
+  }
+  if (p.keyCode === p.RIGHT_ARROW){
+    this.pX += 15;
+  }
+}
+
+function movePlayer2() {
+  //if certain keys are pressed, then player2.y should either increment or decrement
+  function keyPressed() {
+  if (p.keyCode === 'w') {
+    this.pY -= 15;
+  }
+  if (p.keyCode === 's') {
+    this.pY += 15;
+  }
+  if (p.keyCode === 'a'){
+    this.pX -= 15;
+  }
+  if (p.keyCode === 'd'){
+    this.pX += 15;
+  }
+}
+
+
+
+function checkCollisions() {
+  //TODO 4:  use collide2D to check for collisions between either of the paddles and the ball
+  //if a collision happens, the ball should move i nthe opposite direction and "speed" (deltaX)
+ 
+}
+
+function displayScores() {
+  stroke('black');
+  fill('black');
+  textSize(12);
+  text(`Player 1: ${player1Score}`, 10, 20);
+  text(`Player 2: ${player2Score}`, width - 80, 38);
+}
+
+function checkWin() {
+  //TODO 5: if the ball goes 'past' the paddle, the appropriate player's score should increment
+  //the ball should also be reset
+  
+}
+
+function resetBall() {
+  pongBall.x = width/2;
+  pongBall.y = height/2;
+  pongBall.angle = random(-PI, PI);
+  var i = 0;
+  while (i < 100000000) { // pause before the next round
+    i += 1;
+    noLoop();
+  }
+  loop();
